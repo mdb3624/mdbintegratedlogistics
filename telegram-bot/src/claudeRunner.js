@@ -9,9 +9,9 @@ function runClaude(promptText, options = {}) {
   } = options;
 
   return new Promise((resolve, reject) => {
-    execFile(
+    const child = execFile(
       command,
-      [...extraArgs, '-p', promptText],
+      [...extraArgs, '-p', '--', promptText],
       { cwd, timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024 },
       (error, stdout, stderr) => {
         if (error) {
@@ -25,6 +25,7 @@ function runClaude(promptText, options = {}) {
         resolve(stdout.trim());
       }
     );
+    child.stdin.end();
   });
 }
 

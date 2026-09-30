@@ -22,3 +22,17 @@ test('loadConfig throws when ALLOWED_USER_IDS is an empty string', () => {
     /ALLOWED_USER_IDS/
   );
 });
+
+test('loadConfig defaults timeoutMs to 300000 when CLAUDE_TIMEOUT_MS is not set', () => {
+  const config = loadConfig({ TELEGRAM_BOT_TOKEN: 'abc123', ALLOWED_USER_IDS: '111' });
+  assert.equal(config.timeoutMs, 300000);
+});
+
+test('loadConfig uses CLAUDE_TIMEOUT_MS when set', () => {
+  const config = loadConfig({
+    TELEGRAM_BOT_TOKEN: 'abc123',
+    ALLOWED_USER_IDS: '111',
+    CLAUDE_TIMEOUT_MS: '60000',
+  });
+  assert.equal(config.timeoutMs, 60000);
+});

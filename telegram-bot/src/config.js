@@ -9,7 +9,9 @@ function loadConfig(env = process.env) {
     throw new Error('ALLOWED_USER_IDS is not set. Copy .env.example to .env and fill it in.');
   }
 
-  return { token, allowedUserIds };
+  const timeoutMs = env.CLAUDE_TIMEOUT_MS ? Number(env.CLAUDE_TIMEOUT_MS) : 300000;
+
+  return { token, allowedUserIds, timeoutMs };
 }
 
 module.exports = { loadConfig };
