@@ -95,8 +95,11 @@ and one reply. No database, no session store.
   change) before any message reaches Claude.
 - The tool allowlist, not the working directory, is the security boundary.
   A cwd alone does not sandbox Claude. Collaborators never get `Bash`.
-  In headless mode unlisted tools are denied, and file tools are limited to
-  the cwd by default.
+  In headless mode unlisted tools are denied. Bare `Read`/`Edit` reach any
+  path, so scoped users get path rules (`Read(./**)`, `Edit(./**)`).
+  `Glob`/`Grep` can't be path-scoped and leak outside the cwd, so they are
+  left off scoped users' lists. Both behaviors were verified against the
+  real CLI.
 - Known leak: Claude Code loads parent `CLAUDE.md` files, so a scoped user's
   runs can see the repo root and global `CLAUDE.md` contents. Keep secrets
   out of them.

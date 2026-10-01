@@ -8,7 +8,7 @@
     "222222222": {
       "name": "Danny",
       "cwd": "projects/eam",
-      "allowedTools": ["Read", "Glob", "Grep", "Edit", "Write"],
+      "allowedTools": ["Read(./**)", "Edit(./**)"],
       "disallowedTools": ["Bash"]
     }
   }

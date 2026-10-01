@@ -333,7 +333,7 @@ Create `telegram-bot/users.example.json`:
     "222222222": {
       "name": "Danny",
       "cwd": "projects/eam",
-      "allowedTools": ["Read", "Glob", "Grep", "Edit", "Write"],
+      "allowedTools": ["Read(./**)", "Edit(./**)"],
       "disallowedTools": ["Bash"]
     }
   }
@@ -677,8 +677,13 @@ no auto-restart).
   Never put `Bash` in a collaborator's `allowedTools`: a shell can read
   anywhere on this machine.
 - In headless mode Claude cannot prompt for permission, so any tool not in
-  `allowedTools` is denied. File tools are also limited to the working
-  directory by default.
+  `allowedTools` is denied.
+- A bare `Read` or `Edit` is **not** limited to the working directory. It
+  can read any path on the machine (verified). Scope with a path rule such
+  as `Read(./**)` and `Edit(./**)`, which was verified to deny reads outside
+  the folder. `Edit(./**)` also covers `Write`.
+- `Glob` and `Grep` cannot be path-scoped and can search outside the working
+  directory (verified). Leave them off a collaborator's list.
 - Claude Code loads parent `CLAUDE.md` files, so Danny's runs will read this
   repo's root `CLAUDE.md` and your global one. Keep secrets out of both.
 - Danny's runs use `projects/eam` project memory, separate from yours.
