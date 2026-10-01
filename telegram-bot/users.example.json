@@ -1,0 +1,15 @@
+{
+  "users": {
+    "111111111": {
+      "name": "Mike",
+      "cwd": ".",
+      "allowedTools": ["Read", "Glob", "Grep", "Edit", "Write", "Bash"]
+    },
+    "222222222": {
+      "name": "Danny",
+      "cwd": "projects/eam",
+      "allowedTools": ["Read(./**)", "Edit(./**)"],
+      "disallowedTools": ["Bash"]
+    }
+  }
+}
