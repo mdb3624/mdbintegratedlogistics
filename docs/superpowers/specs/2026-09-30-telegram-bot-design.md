@@ -13,8 +13,9 @@ session would.
 
 ## Scope (v1)
 
-- Single allowlisted user (Mike) to start; adding a second allowlisted user
-  (Danny) later is a one-line config change, not a code change.
+- One bot, multiple users, each scoped per user. Mike gets the repo root.
+  Danny gets `projects/eam` only, with a restricted tool set (no `Bash`).
+  Adding or changing a user is a `users.json` edit, not a code change.
 - Both open-ended chat and slash-command-style messages (e.g. `/audit`,
   `/level-up`) are supported — both are just forwarded as the prompt text.
 - Runs locally on Mike's machine only. No public webhook, no cloud hosting.
@@ -37,15 +38,16 @@ Telegram Bot API (long-polling, no public URL needed)
      │
      ▼
 telegram-bot/bot.js  (Node.js process, run locally via `npm start`)
-     │  1. check sender's numeric Telegram user ID against allowlist
-     │  2. if not allowed → ignore silently, no reply
-     │  3. if allowed → spawn child process:
-     │       claude -p "<message text>"   (cwd = repo root)
+     │  1. look up sender's numeric Telegram user ID in users.json
+     │  2. if unknown → ignore silently, no reply
+     │  3. if known → spawn child process:
+     │       claude --allowedTools ... --disallowedTools ... -p "<message text>"
+     │       (cwd and tool lists come from that user's entry)
      │  4. capture stdout, chunk to ≤4096 chars, send back via Telegram
      ▼
 Claude Code headless CLI, running in this repo's directory
-     (picks up CLAUDE.md, skills, and project memory exactly like an
-      interactive session)
+     (picks up CLAUDE.md, skills, and project memory for its cwd, like an
+      interactive session started in that folder)
 ```
 
 ### Components
@@ -53,16 +55,23 @@ Claude Code headless CLI, running in this repo's directory
 - **`telegram-bot/bot.js`** — the bot process. Single file for v1; split out
   only if it grows unwieldy.
   - Uses `node-telegram-bot-api` in polling mode.
-  - On each message: allowlist check → spawn `claude -p` → reply.
+  - On each message: user lookup → spawn `claude -p` with that user's cwd
+    and tool flags → reply.
   - Chunks any reply longer than Telegram's 4096-character limit into
     multiple messages.
 - **`telegram-bot/.env`** (gitignored) — holds:
   - `TELEGRAM_BOT_TOKEN` — from BotFather.
-  - `ALLOWED_USER_IDS` — comma-separated Telegram numeric user IDs.
+  - `USERS_FILE` — optional path to the users file (default `users.json`).
+- **`telegram-bot/users.json`** (gitignored) — map of numeric Telegram user
+  ID → `{ name, cwd, allowedTools, disallowedTools? }`. `cwd` must resolve
+  inside the repo root; `allowedTools` is required and non-empty, so there
+  is no unrestricted default. Invalid entries fail startup.
+- **`telegram-bot/users.example.json`** — committed template with Mike and
+  Danny entries.
 - **`telegram-bot/package.json`** — `node-telegram-bot-api`, `dotenv` as
   dependencies; `npm start` runs the bot.
-- **`telegram-bot/.env.example`** — committed template showing the two
-  required variables, so setup is documented without leaking Mike's real
+- **`telegram-bot/.env.example`** — committed template showing the
+  required variable, so setup is documented without leaking Mike's real
   token.
 
 ### Data flow / state
@@ -74,7 +83,7 @@ and one reply. No database, no session store.
 
 - Claude CLI invocation fails or times out → bot replies with a short error
   message to the user rather than hanging silently.
-- Message from a non-allowlisted user ID → silently ignored (avoids leaking
+- Message from a user ID not in `users.json` → silently ignored (avoids leaking
   that the bot exists / responds to probing).
 - Bot process crash → no auto-restart in v1; Mike restarts it manually
   (`npm start`). Acceptable since it's a personal, local-only tool right now.
@@ -82,8 +91,15 @@ and one reply. No database, no session store.
 ## Security
 
 - Bot token lives only in `telegram-bot/.env`, which is gitignored.
-- Allowlist is enforced by numeric Telegram user ID (not username, which can
+- Access is enforced by numeric Telegram user ID (not username, which can
   change) before any message reaches Claude.
+- The tool allowlist, not the working directory, is the security boundary.
+  A cwd alone does not sandbox Claude. Collaborators never get `Bash`.
+  In headless mode unlisted tools are denied, and file tools are limited to
+  the cwd by default.
+- Known leak: Claude Code loads parent `CLAUDE.md` files, so a scoped user's
+  runs can see the repo root and global `CLAUDE.md` contents. Keep secrets
+  out of them.
 - No secrets or tokens are ever echoed back into Telegram replies.
 
 ## Testing
@@ -95,14 +111,16 @@ and one reply. No database, no session store.
      `context/`).
   2. Send a recognized skill-style message (e.g. `/audit`) → confirm it
      behaves the same as running it in an interactive Claude Code session.
-  3. Message from a second, non-allowlisted Telegram account → confirm the
-     bot sends no reply at all.
+  3. Message from a second Telegram account not in `users.json` → confirm
+     the bot sends no reply at all.
+  3b. Message from Danny's account → listing `projects/eam` works; reading
+     `context/about-business.md` and running a shell command are refused.
   4. Send a message that would produce a long reply → confirm it arrives as
      multiple chunked Telegram messages, none truncated or malformed.
 
 ## Future work (not v1)
 
-- Add Danny's Telegram user ID to the allowlist once he's ready to use it.
+- Add Danny's Telegram user ID to `users.json` once he's ready to use it.
 - Multi-turn conversation continuity, scoped per Telegram user once more
   than one person is actively using the bot (needs a design decision on
   session-ID mapping per user/chat).
