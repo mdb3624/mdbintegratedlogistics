@@ -1,0 +1,15 @@
+{
+  "name": "aios-telegram-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Telegram bridge to this AIOS's local Claude Code CLI",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}
