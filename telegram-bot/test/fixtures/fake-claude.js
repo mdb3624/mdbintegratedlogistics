@@ -7,4 +7,9 @@ if (prompt === 'ERROR_TEST') {
   process.exit(1);
 }
 
+if (prompt === 'ARGS_TEST') {
+  console.log(args.slice(0, idx).join(' '));
+  process.exit(0);
+}
+
 console.log(`echo:${prompt}`);
