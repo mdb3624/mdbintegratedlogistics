@@ -31,3 +31,12 @@ test('rejects with a timeout message when the process does not finish in time', 
     /did not respond within 200ms/
   );
 });
+
+test('passes --session-id for a new session and --resume for an existing one', async () => {
+  const base = { command: process.execPath, extraArgs: [fakeClaude] };
+  assert.equal(await runClaude('ARGS_TEST', { ...base, sessionId: 'abc' }), '--session-id abc');
+  assert.equal(
+    await runClaude('ARGS_TEST', { ...base, sessionId: 'abc', resume: true }),
+    '--resume abc'
+  );
+});
