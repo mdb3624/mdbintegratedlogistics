@@ -68,3 +68,21 @@ no auto-restart).
       multiple Telegram messages, none truncated or malformed.
 - [ ] Send a non-text message (a sticker or photo) from your allowlisted
       account — confirm the bot does not crash and simply ignores it.
+
+## Operations
+
+- **Single instance**: the bot holds `bot.lock` (its pid). A second `npm start`
+  exits with "already running". A lock left by a crashed process is detected
+  as stale and taken over. Telegram 409 (same token polled elsewhere) or 401
+  makes the bot exit non-zero instead of retrying forever.
+- **Graceful stop**: SIGINT/SIGTERM stop polling, wait up to 30s for in-flight
+  replies, release the lock, then exit.
+- **Scoped users**: a user whose `cwd` is below the repo root is rejected at
+  startup if their `allowedTools` contain `Bash` or an unscoped
+  `Read`/`Edit`/`Write`/`Glob`/`Grep`.
+- **Auto-start (Windows)**:
+  `powershell -ExecutionPolicy Bypass -File scripts\register-task.ps1`
+  (add `-WhatIf` to preview, `-Unregister` to remove).
+- **Live smoke test**: set `TELEGRAM_TEST_TOKEN` (a dedicated test bot) and
+  `TELEGRAM_TEST_CHAT_ID`, then `npm run smoke`. Reply to the bot within 30s,
+  or use `node scripts/smoke-test.js --send-only`. Skips if the token is unset.

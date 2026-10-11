@@ -45,3 +45,18 @@ test('queue runs tasks for the same key in order', async () => {
   await Promise.all([slow, fast]);
   assert.deepEqual(order, [1, 2]);
 });
+
+test('idle() resolves only after all queued work has finished', async () => {
+  const enqueue = createKeyedQueue();
+  let done = false;
+  enqueue('a', async () => {
+    await new Promise((r) => setTimeout(r, 50));
+    done = true;
+  });
+  await enqueue.idle();
+  assert.equal(done, true);
+});
+
+test('idle() resolves immediately when nothing is queued', async () => {
+  await createKeyedQueue().idle();
+});
