@@ -69,13 +69,14 @@ $principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" 
 
 $existing = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
 $verb = if ($existing) { 'Update' } else { 'Register' }
+$done = if ($existing) { 'Updated' } else { 'Registered' }
 
 if ($PSCmdlet.ShouldProcess($TaskName, "$verb scheduled task (node $botJs)")) {
     Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger `
         -Settings $settings -Principal $principal `
         -Description 'Starts the AIOS Telegram bot at logon and restarts it on failure.' `
         -Force | Out-Null
-    Write-Host "${verb}d scheduled task '$TaskName' (runs at logon as $env:USERNAME)."
+    Write-Host "$done scheduled task '$TaskName' (runs at logon as $env:USERNAME)."
     Write-Host "Start now:  Start-ScheduledTask -TaskName $TaskName"
     Write-Host "Stop:       Stop-ScheduledTask  -TaskName $TaskName"
     Write-Host "Remove:     powershell -File scripts\register-task.ps1 -Unregister"
