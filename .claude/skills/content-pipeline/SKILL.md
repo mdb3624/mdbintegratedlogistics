@@ -18,7 +18,7 @@ Ask only for what is missing:
 
 - Marketing lives in `projects/<project>-marketing/<series>/`, never inside the project's code repo, never at the repo root. Example: `projects/freightclub-marketing/vibe-coding-series/`.
 - Registry: `projects/<project>-marketing/<series>/SERIES.md`.
-- Voice: `references/voice.md`. Short sentences, no em dashes, bullets over paragraphs.
+- Voice: `references/voice.md`, `references/voice-casual.md`, `references/voice-spoken.md` (spoken: use for logic and word choice, cut filler). Short sentences, no em dashes, bullets over paragraphs.
 - Code repos are nested git repos. Verify claims with `git -C projects/<project> log ...`, not the root repo.
 - The nested copy can be STALE. Before fact-checking, find every clone of the project (`C:\projects\<project>`, the nested copy, any other), compare `git log -1` date and current branch, and verify against the most recent working clone. Tell every checker which clone to use. Local-state claims (hooks, uncommitted config) are per clone; GitHub-side claims (branch protection, CI runs) are checked with `gh api`.
 
@@ -32,7 +32,7 @@ Read `SERIES.md`. If missing, build it by scanning every `.md` in the series fol
 
 ## Step 2: Draft (sub-agent 1)
 
-Spawn a drafter. Give it: topic, format, series intent, the full registry, `references/voice.md`, and the files of every prior piece. It writes `<series>/<next-file-name>.md` with:
+Spawn a drafter. Give it: topic, format, series intent, the full registry, `references/voice.md`, `references/voice-casual.md`, `references/voice-spoken.md`, and the files of every prior piece. It writes `<series>/<next-file-name>.md` with:
 - `STATUS: DRAFT for Mike's review. Not published.`
 - Format note and publishing note (feed posts: no link in body, article link goes in the first comment; articles: no hashtags unless Mike asks).
 - The piece, then a "Notes for Mike (not for publishing)" section listing every factual claim and what to confirm.
