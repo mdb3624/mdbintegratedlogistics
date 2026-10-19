@@ -12,9 +12,9 @@ function runClaude(promptText, options = {}) {
   const sessionArgs = sessionId ? [resume ? '--resume' : '--session-id', sessionId] : [];
 
   return new Promise((resolve, reject) => {
-    execFile(
+    const child = execFile(
       command,
-      [...extraArgs, ...sessionArgs, '-p', promptText],
+      [...extraArgs, ...sessionArgs, '-p', '--', promptText],
       { cwd, timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024 },
       (error, stdout, stderr) => {
         if (error) {
@@ -30,6 +30,7 @@ function runClaude(promptText, options = {}) {
         resolve(stdout.trim());
       }
     );
+    child.stdin.end();
   });
 }
 

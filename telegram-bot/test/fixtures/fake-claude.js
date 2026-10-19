@@ -1,6 +1,8 @@
 const args = process.argv.slice(2);
 const idx = args.indexOf('-p');
-const prompt = idx >= 0 ? args[idx + 1] : '';
+let promptIdx = idx >= 0 ? idx + 1 : -1;
+if (args[promptIdx] === '--') promptIdx += 1;
+const prompt = promptIdx >= 0 ? args[promptIdx] : '';
 
 if (prompt === 'ERROR_TEST') {
   console.error('boom');

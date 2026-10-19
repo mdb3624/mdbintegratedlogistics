@@ -131,7 +131,7 @@ test('graceful shutdown lets an in-flight reply finish before exiting', async ()
   const slowEcho = path.join(os.tmpdir(), `slow-echo-${process.pid}.js`);
   fs.writeFileSync(
     slowEcho,
-    `const a=process.argv.slice(2);const p=a[a.indexOf('-p')+1];setTimeout(()=>console.log('late:'+p),400);`
+    `const a=process.argv.slice(2);const p=a[a.indexOf('--')+1];setTimeout(()=>console.log('late:'+p),400);`
   );
   const ctx = await boot({ claudeScript: slowEcho });
   try {
