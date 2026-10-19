@@ -6,3 +6,7 @@ __pycache__/
 node_modules/
 .claude/settings.local.json
 audits/
+projects/
+.claude/worktrees/
+references/voice-samples/
+.obsidian/

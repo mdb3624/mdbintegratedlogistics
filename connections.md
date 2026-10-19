@@ -4,14 +4,16 @@ Registry of every system your AIOS can reach. Filled by `/onboard` from Q4-Q7 an
 
 | # | Domain | Tool | Mechanism | Auth | Last checked |
 |---|---|---|---|---|---|
-| 1 | Revenue / Financials | _filled by /onboard_ | not yet connected | — | — |
-| 2 | Customer interactions | _filled by /onboard_ | not yet connected | — | — |
-| 3 | Calendar | _filled by /onboard_ | not yet connected | — | — |
-| 4 | Communication | _filled by /onboard_ | not yet connected | — | — |
-| 5 | Project / task tracking | _filled by /onboard_ | not yet connected | — | — |
-| 6 | Meeting intelligence | _filled by /onboard_ | not yet connected | — | — |
-| 7 | Knowledge / files | _filled by /onboard_ | not yet connected | — | — |
+| 1 | Revenue / Financials | Not determined yet | not yet connected | — | — |
+| 2 | Customer interactions | Gmail | mcp (claude.ai connector) | OAuth via claude.ai | 2026-10-01 |
+| 3 | Calendar | Google Calendar | mcp (claude.ai connector) | OAuth via claude.ai | 2026-10-01 |
+| 4 | Communication | Gmail | mcp (claude.ai connector) | OAuth via claude.ai | 2026-10-01 |
+| 5 | Project / task tracking | Local project folders (this repo) | not yet connected | — | — |
+| 6 | Meeting intelligence | Local project folders (this repo) | not yet connected | — | — |
+| 7 | Knowledge / files | Google Drive + local project folders (this repo) | mcp (claude.ai connector) | OAuth via claude.ai | 2026-10-01 |
 
 **Mechanism options:** `mcp` (MCP server), `script` (Python/Bash hitting an API, in `scripts/`), `export` (CSV/JSON dump pipeline), `key+ref` (`.env` key + `references/{tool}-api.md` guide), `not yet connected`.
 
 When you wire a new tool, also save `references/{tool}-api.md` capturing endpoints, auth flow, and common queries — researched-once-saved-forever.
+
+**2026-10-01:** Verified in a fresh session. Gmail (`search_threads`) and Google Calendar (`list_events`) both returned live data for mdb3624@gmail.com. Google Drive (`list_recent_files`) also verified, returned live files. Connectors expose write tools (send, reply, delete, create/update event), so confirm before any outbound action.

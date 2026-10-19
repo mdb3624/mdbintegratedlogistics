@@ -6,12 +6,15 @@ function runClaude(promptText, options = {}) {
     command = 'claude',
     extraArgs = [],
     timeoutMs = 120000,
+    sessionId,
+    resume = false,
   } = options;
+  const sessionArgs = sessionId ? [resume ? '--resume' : '--session-id', sessionId] : [];
 
   return new Promise((resolve, reject) => {
     const child = execFile(
       command,
-      [...extraArgs, '-p', '--', promptText],
+      [...extraArgs, ...sessionArgs, '-p', '--', promptText],
       { cwd, timeout: timeoutMs, maxBuffer: 10 * 1024 * 1024 },
       (error, stdout, stderr) => {
         if (error) {

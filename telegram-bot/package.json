@@ -6,7 +6,7 @@
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test \"test/*.test.js\""
   },
   "dependencies": {
     "dotenv": "^16.4.5",
