@@ -19,7 +19,9 @@ function runClaude(promptText, options = {}) {
       (error, stdout, stderr) => {
         if (error) {
           if (error.killed && error.signal === 'SIGTERM') {
-            reject(new Error(`Claude did not respond within ${timeoutMs}ms`));
+            const timeoutError = new Error(`Claude did not respond within ${timeoutMs}ms`);
+            timeoutError.code = 'CLAUDE_TIMEOUT';
+            reject(timeoutError);
             return;
           }
           reject(new Error(stderr || error.message));

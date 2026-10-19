@@ -11,7 +11,7 @@ const valid = {
     '222': {
       name: 'Danny',
       cwd: 'projects/eam',
-      allowedTools: ['Read', 'Edit'],
+      allowedTools: ['Read(./**)', 'Edit(./**)'],
       disallowedTools: ['Bash'],
     },
   },
@@ -76,7 +76,34 @@ test('toolArgs builds comma-separated flags, omitting empty disallowedTools', ()
   const users = parseUsers(valid, repoRoot);
   assert.deepEqual(toolArgs(users.get('111')), ['--allowedTools', 'Read,Bash']);
   assert.deepEqual(toolArgs(users.get('222')), [
-    '--allowedTools', 'Read,Edit',
+    '--allowedTools', 'Read(./**),Edit(./**)',
     '--disallowedTools', 'Bash',
   ]);
+});
+
+const scoped = (allowedTools) => ({
+  users: { '222': { name: 'Danny', cwd: 'projects/eam', allowedTools } },
+});
+
+test('rejects Bash for a user scoped below the repo root (a shell can read anywhere)', () => {
+  assert.throws(() => parseUsers(scoped(['Read(./**)', 'Bash']), repoRoot), /Bash/);
+  assert.throws(() => parseUsers(scoped(['Bash(ls:*)']), repoRoot), /Bash/);
+});
+
+test('rejects unscoped Read, Edit, Write, Glob and Grep for a user scoped below the repo root', () => {
+  for (const tool of ['Read', 'Edit', 'Write', 'Glob', 'Grep']) {
+    assert.throws(
+      () => parseUsers(scoped([tool]), repoRoot),
+      new RegExp(tool)
+    );
+  }
+});
+
+test('accepts path-scoped Read and Edit for a scoped user', () => {
+  assert.doesNotThrow(() => parseUsers(scoped(['Read(./**)', 'Edit(./**)']), repoRoot));
+});
+
+test('does not apply the scoping rule to a user whose cwd is the repo root', () => {
+  const rootUser = { users: { '111': { cwd: '.', allowedTools: ['Read', 'Bash', 'Glob'] } } };
+  assert.doesNotThrow(() => parseUsers(rootUser, repoRoot));
 });

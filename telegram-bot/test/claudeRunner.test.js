@@ -60,3 +60,31 @@ test("closes the child's stdin so it does not wait for input", async () => {
   });
   assert.equal(result, 'stdin-closed');
 });
+
+test('timeout rejects with code CLAUDE_TIMEOUT so callers can tell it from a stale session', async () => {
+  await assert.rejects(
+    runClaude('hello', {
+      command: process.execPath,
+      extraArgs: [fakeClaudeSlow],
+      timeoutMs: 200,
+    }),
+    (err) => err.code === 'CLAUDE_TIMEOUT'
+  );
+});
+
+test('timeout kills the whole process tree, not just the claude process', async () => {
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const marker = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'tree-')), 'marker');
+  const grandchild = path.join(__dirname, 'fixtures', 'fake-claude-grandchild.js');
+  await assert.rejects(
+    runClaude('hello', {
+      command: process.execPath,
+      extraArgs: [grandchild, marker],
+      timeoutMs: 300,
+    }),
+    /did not respond/
+  );
+  await new Promise((r) => setTimeout(r, 2500));
+  assert.equal(fs.existsSync(marker), false, 'grandchild survived the timeout');
+});

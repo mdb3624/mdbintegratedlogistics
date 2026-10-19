@@ -40,7 +40,7 @@ function createSessionStore(filePath) {
 // Runs tasks for the same key one at a time.
 function createKeyedQueue() {
   const tails = new Map();
-  return function enqueue(key, task) {
+  function enqueue(key, task) {
     const prev = tails.get(key) || Promise.resolve();
     const next = prev.then(task, task);
     const tail = next.catch(() => {});
@@ -49,7 +49,12 @@ function createKeyedQueue() {
       if (tails.get(key) === tail) tails.delete(key);
     });
     return next;
+  }
+  // Resolves once every task queued so far (and any queued meanwhile) has settled.
+  enqueue.idle = async function idle() {
+    while (tails.size > 0) await Promise.all([...tails.values()]);
   };
+  return enqueue;
 }
 
 module.exports = { createSessionStore, createKeyedQueue };
