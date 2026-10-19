@@ -1,6 +1,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+// Tools that can reach outside the working directory unless given a path rule.
+const UNSCOPED_TOOLS = ['Read', 'Edit', 'Write', 'Glob', 'Grep'];
+
 function parseUsers(raw, repoRoot) {
   const entries = raw && raw.users && typeof raw.users === 'object' ? Object.entries(raw.users) : null;
   if (!entries) throw new Error('users file must contain a "users" object.');
@@ -22,6 +25,19 @@ function parseUsers(raw, repoRoot) {
     const rel = path.relative(repoRoot, cwd);
     if (rel.startsWith('..') || path.isAbsolute(rel)) {
       throw new Error(`User ${id} cwd must be inside the repo root.`);
+    }
+
+    // A working directory is not a sandbox: only path-scoped rules confine a
+    // user who is not running at the repo root.
+    if (rel !== '') {
+      const unsafe = entry.allowedTools.find(
+        (t) => /^Bash(\(|$)/.test(t) || UNSCOPED_TOOLS.includes(t)
+      );
+      if (unsafe) {
+        throw new Error(
+          `User ${id} is scoped to ${entry.cwd} but allows "${unsafe}", which can reach outside it. Use a path rule such as Read(./**), and never Bash.`
+        );
+      }
     }
 
     users.set(id, {
