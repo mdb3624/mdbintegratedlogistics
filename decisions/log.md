@@ -62,3 +62,18 @@ Keep it terse. Future-you will thank present-you for capturing the *why*, not ju
 **Open:** Verify story count, timeline, and cost claims against the repo before quoting them. Don't quote Salma. Her book content that mentions Mike comes to him for review before publishing, per her promise. Measure edit passes per post on the next series piece (baseline 7+, target 2 or fewer).
 
 **Owner:** Mike
+
+## 2026-10-16 — Close the three structural audit gaps
+
+**Decision:** Add a weekly cadence skill (`weekly-content-check`), promote the three `/content-pipeline` reviewers to `.claude/agents/`, and add `templates/` (post, decision entry).
+
+**Why:**
+- Baseline audit scored 72.5/100. Cadence was the weakest C (10/25) with no recurring trigger.
+- Reviewers as agents make them reusable outside the pipeline.
+- Templates cut retyping the post skeleton and decision format.
+
+**Alternatives considered:** A settings.json hook or scheduled run for true automation (not done; the weekly skill still runs only when invoked). Editing `/content-pipeline` to call the new agents (deferred, file has uncommitted edits).
+
+**Open:** Decide whether to schedule `weekly-content-check`. Wire `/content-pipeline` Step 4 to the agents. Reference guides for Gmail, Calendar, Drive still missing.
+
+**Owner:** Mike
